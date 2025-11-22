@@ -1,0 +1,43 @@
+.dropdown {
+  position: relative;
+  width: 200px;
+}
+
+.dropdown-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.dropdown-control {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dropdown-menu {
+  position: absolute;
+  background: white;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 4px;
+  z-index: 10;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: #f0f0f0;
+}
+
+.arrow {
+  font-size: 12px;
+}

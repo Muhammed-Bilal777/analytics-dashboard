@@ -1,0 +1,39 @@
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+.table th {
+  background: #f4f6f8;
+  text-align: left;
+  padding: 12px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  border-bottom: 1px solid #ddd;
+}
+
+.table td {
+  padding: 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.table tr:hover {
+  background: #fafafa;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}

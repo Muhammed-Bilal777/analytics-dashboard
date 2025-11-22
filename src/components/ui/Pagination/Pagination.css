@@ -1,0 +1,25 @@
+.pagination {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pg-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  background: #007bff;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pg-btn:disabled {
+  background: #b7b7b7;
+  cursor: not-allowed;
+}
+
+.pg-info {
+  font-size: 14px;
+}
