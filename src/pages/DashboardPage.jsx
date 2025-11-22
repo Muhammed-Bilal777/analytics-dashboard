@@ -3,12 +3,11 @@ import React, { useState, useMemo } from "react";
 import useDashboardData from "../hooks/useDashboardData.js";
 import useTableLogic from "../hooks/useTableLogic.js";
 import usePagination from "../hooks/usePagination.js";
+import useDebounce from "../hooks/useDebounce.js";
 
 import Button from "../components/ui/Button/Button.jsx";
 import Dropdown from "../components/ui/Dropdown/Dropdown.jsx";
 import Pagination from "../components/ui/Pagination/Pagination.jsx";
-
-import DataTable from "../components/headless/DataTable/DataTable.jsx";
 
 import {
   BarChart,
@@ -20,20 +19,42 @@ import {
 } from "recharts";
 
 import "./DashboardPage.css";
+
 import PageSizeInput from "../components/ui/PageSizeInput/PageSizeInput.jsx";
 import PageSizeSelector from "../components/ui/PageSizeSelector/PageSizeSelector.jsx";
+import DataTable from "../components/headless/DataTable/DataTable.jsx";
+import SearchBar from "../components/ui/SearchBar/SearchBar.jsx";
+
+import PageSkeleton from "../components/skeletons/PageSkeleton.jsx";
 
 export default function DashboardPage() {
   const { data, loading } = useDashboardData();
+
+  // Search
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   // Filters
   const [channelFilter, setChannelFilter] = useState("");
   const [regionFilter, setRegionFilter] = useState("");
 
-  // Table sorting logic
-  const { sortedData, requestSort, sortConfig } = useTableLogic(data);
+  // 🔍 Search applied FIRST
+  const searchedData = useMemo(() => {
+    if (!debouncedSearch.trim()) return data;
 
-  // Filtering
+    const query = debouncedSearch.toLowerCase();
+
+    return data.filter((row) =>
+      Object.values(row).some((value) =>
+        String(value).toLowerCase().includes(query)
+      )
+    );
+  }, [data, debouncedSearch]);
+
+  // Sorting logic
+  const { sortedData, requestSort, sortConfig } = useTableLogic(searchedData);
+
+  // Filtering AFTER search & sort
   const filteredData = useMemo(() => {
     return sortedData.filter((row) => {
       if (channelFilter && row.channel !== channelFilter) return false;
@@ -66,50 +87,54 @@ export default function DashboardPage() {
     <div className="page">
       <h1 className="title">Marketing Analytics Dashboard</h1>
 
-      {/* Filters */}
-      <div className="filters">
-        <Dropdown
-          label="Channel"
-          options={["TikTok", "Pinterest", "Snapchat", "Twitter"]}
-          value={channelFilter}
-          onChange={setChannelFilter}
-        />
-
-        <Dropdown
-          label="Region"
-          options={["Europe", "Asia", "Australia", "South America"]}
-          value={regionFilter}
-          onChange={setRegionFilter}
-        />
-
-        <Button
-          variant="secondary"
-          onClick={() => {
-            setChannelFilter("");
-            setRegionFilter("");
-          }}
-        >
-          Reset
-        </Button>
-      </div>
-
-      {/* Chart */}
-      <div className="chart-container">
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={filteredData}>
-            <XAxis dataKey="channel" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="conversions" fill="#007bff" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Table */}
       {loading ? (
-        <p>Loading...</p>
+        <PageSkeleton />
       ) : (
         <>
+          {/* Search Bar */}
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+
+          {/* Filters */}
+          <div className="filters">
+            <Dropdown
+              label="Channel"
+              options={["TikTok", "Pinterest", "Snapchat", "Twitter"]}
+              value={channelFilter}
+              onChange={setChannelFilter}
+            />
+
+            <Dropdown
+              label="Region"
+              options={["Europe", "Asia", "Australia", "South America"]}
+              value={regionFilter}
+              onChange={setRegionFilter}
+            />
+
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setChannelFilter("");
+                setRegionFilter("");
+                setSearchQuery("");
+              }}
+            >
+              Reset
+            </Button>
+          </div>
+
+          {/* Chart */}
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={filteredData}>
+                <XAxis dataKey="channel" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="conversions" fill="#007bff" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Table */}
           <DataTable
             data={paginatedData}
             columns={columns}

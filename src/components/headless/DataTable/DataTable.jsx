@@ -1,7 +1,12 @@
 import React from "react";
 import "./DataTable.css";
 
-export default function DataTable({
+import {
+  formatNumber,
+  formatCurrencyINR,
+} from "../../../utils/formatNumbers.js";
+
+function DataTable({
   data = [],
   columns = [],
   renderHeader,
@@ -36,13 +41,33 @@ export default function DataTable({
             data.map((row) =>
               renderRow({
                 row,
-                cells: columns.map((col) =>
-                  renderCell({
+
+                // Format values BEFORE rendering cell
+                cells: columns.map((col) => {
+                  let value = row[col.key];
+                  let formattedValue = value;
+
+                  switch (col.key) {
+                    case "impressions":
+                    case "clicks":
+                    case "conversions":
+                      formattedValue = formatNumber(value); // 10.5K
+                      break;
+
+                    case "spend":
+                      formattedValue = formatCurrencyINR(value); // ₹10.5K
+                      break;
+
+                    default:
+                      formattedValue = value;
+                  }
+
+                  return renderCell({
                     row,
                     column: col,
-                    value: row[col.key],
-                  })
-                ),
+                    value: formattedValue,
+                  });
+                }),
               })
             )
           )}
@@ -51,3 +76,5 @@ export default function DataTable({
     </div>
   );
 }
+
+export default React.memo(DataTable);
